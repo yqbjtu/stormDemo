@@ -44,6 +44,7 @@ public class WordNormalizer implements IRichBolt {
                 List a = new ArrayList();
                 a.add(input);
                 collector.emit(a, new Values(word));
+                System.out.println("WordNormalizer execute:" + word );
             }
         }
         // 对元组做出应答

@@ -6,6 +6,8 @@ import org.apache.storm.topology.IRichSpout;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -17,6 +19,7 @@ public class WordReader implements IRichSpout {
     private FileReader fileReader;
     private boolean completed = false;
     private TopologyContext context;
+    private static final Logger log = LoggerFactory.getLogger(WordReader.class);
 
     public boolean isDistributed() {
         return false;
@@ -60,16 +63,21 @@ public class WordReader implements IRichSpout {
             return;
         }
         String str;
-        // 创建reader
-        BufferedReader reader = new BufferedReader(fileReader);
+
         try {
+            // 创建reader
+//            BufferedReader reader = new BufferedReader(fileReader);
             // 读所有文本行
-            while ((str = reader.readLine()) != null) {
-                /**
-                 * 按行发布一个新值
-                 */
-                this.collector.emit(new Values(str), str);
-            }
+//            while ((str = reader.readLine()) != null) {
+//                /**
+//                 * 按行发布一个新值
+//                 */
+//                this.collector.emit(new Values(str), str);
+//            }
+            str = "it can hurt you. If you all disagree the whole time and insist on" +
+                    " going your separate ways, the first enemy you meet will be able to destroy you.";
+            this.collector.emit(new Values(str), str);
+            log.info("nextTuple read:" + str);
         } catch (Exception e) {
             throw new RuntimeException("Error reading tuple", e);
         } finally {
@@ -83,13 +91,15 @@ public class WordReader implements IRichSpout {
     @Override
     public void open(Map conf, TopologyContext context,
                      SpoutOutputCollector collector) {
-        try {
-            this.context = context;
-            this.fileReader = new FileReader(conf.get("wordsFile").toString());
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Error reading file ["
-                    + conf.get("wordFile") + "]");
-        }
+        this.context = context;
+//        try {
+//
+//            this.fileReader = new FileReader(conf.get("wordsFile").toString());
+//        } catch (FileNotFoundException e) {
+//            throw new RuntimeException("Error reading file ["
+//                    + conf.get("wordFile") + "]");
+//        }
+        log.info("WordReader read:" );
         this.collector = collector;
     }
 

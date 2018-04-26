@@ -36,7 +36,7 @@ public class WordCounter extends BaseBasicBolt {
         count++;
         counts.put(word, count);
         collector.emit(new Values(word, count));
-
+        System.out.println("WordCounter execute:" + word + ":"+ count);
     }
 
     /**
@@ -49,7 +49,6 @@ public class WordCounter extends BaseBasicBolt {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
     }
-
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {

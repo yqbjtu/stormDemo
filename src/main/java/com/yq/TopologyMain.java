@@ -25,14 +25,16 @@ public class TopologyMain {
     public static void main(String[] args) throws Exception {
         //定义拓扑
         TopologyBuilder builder = new TopologyBuilder();
-        builder.setSpout("word-reader", new WordReader());
+        builder.setSpout("word-reader", new WordReader(),5);
         builder.setBolt("word-normalizer", new WordNormalizer()).shuffleGrouping("word-reader");
         builder.setBolt("word-counter", new WordCounter()).fieldsGrouping("word-normalizer", new Fields("word"));
+
 
         //配置
         Config conf = new Config();
         System.out.println("args[0]:" + args[0]);
         conf.put("wordsFile", args[0]);
+        conf.put(Config.NIMBUS_THRIFT_PORT, 6627);
 //        //10.4.16.58 ubuntu01
 //        conf.put(Config.NIMBUS_SEEDS,"ubuntu01");//配置nimbus连接端口，默认 6627
 //        conf.put(Config.STORM_ZOOKEEPER_SERVERS, Arrays.asList("ubuntu01")); //配置zookeeper连接主机地址，可以使用集合存放多个
@@ -45,7 +47,7 @@ public class TopologyMain {
         //System.setProperty("storm.jar","d:\\storm-remote-submit-1.0-SNAPSHOT-jar-with-dependencies.jar");
         //StormSubmitter.submitTopology(name, conf, topology);
         if (args != null && args.length > 1) {
-            conf.setNumWorkers(1);
+            conf.setNumWorkers(3);
             StormSubmitter.submitTopologyWithProgressBar(args[1], conf, builder.createTopology());
         } else {
             LocalCluster cluster = new LocalCluster();
