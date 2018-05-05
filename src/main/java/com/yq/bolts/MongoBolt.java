@@ -1,14 +1,15 @@
 package com.yq.bolts;
 
-import org.apache.storm.task.OutputCollector;
+import com.yq.spouts.WordReader;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.BasicOutputCollector;
-import org.apache.storm.topology.IRichBolt;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,22 +22,17 @@ import java.util.Map;
  * @version 2018/4/25 11:42
  */
 
-public class WordCounter extends BaseBasicBolt {
-    Map<String, Integer> counts = new HashMap<String, Integer>();
+public class MongoBolt extends BaseBasicBolt {
+    private static final Logger log = LoggerFactory.getLogger(MongoBolt.class);
     String name;
     Integer id;
 
-
+    @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
         String word = tuple.getString(0);
-        Integer count = counts.get(word);
-        if (count == null) {
-            count = 0;
-        }
-        count++;
-        counts.put(word, count);
-        collector.emit(new Values(word, count));
-        System.out.println("WordCounter execute:" + word + ":"+ count);
+
+        collector.emit(new Values(word));
+        System.out.println("MongoBolt(will write to mongo) execute:" + word );
     }
 
     /**
@@ -44,14 +40,15 @@ public class WordCounter extends BaseBasicBolt {
      */
     @Override
     public void cleanup() {
-        System.out.println("-- 单词数 【" + name + "-" + id + "】 --");
-        for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
-        }
+        System.out.println("-- MongoBolt  cleanup --");
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("word", "count"));
+        declarer.declare(new Fields("word"));
     }
+
+
+
+
 }

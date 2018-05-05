@@ -1,14 +1,13 @@
 package com.yq.bolts;
 
-import org.apache.storm.task.OutputCollector;
-import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.BasicOutputCollector;
-import org.apache.storm.topology.IRichBolt;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,12 +20,13 @@ import java.util.Map;
  * @version 2018/4/25 11:42
  */
 
-public class WordCounter extends BaseBasicBolt {
+public class CounterBolt extends BaseBasicBolt {
+    private static final Logger log = LoggerFactory.getLogger(CounterBolt.class);
     Map<String, Integer> counts = new HashMap<String, Integer>();
     String name;
     Integer id;
 
-
+    @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
         String word = tuple.getString(0);
         Integer count = counts.get(word);
@@ -36,7 +36,7 @@ public class WordCounter extends BaseBasicBolt {
         count++;
         counts.put(word, count);
         collector.emit(new Values(word, count));
-        System.out.println("WordCounter execute:" + word + ":"+ count);
+        log.info("CounterBolt execute:" + word + ":"+ count);
     }
 
     /**
@@ -46,12 +46,13 @@ public class WordCounter extends BaseBasicBolt {
     public void cleanup() {
         System.out.println("-- 单词数 【" + name + "-" + id + "】 --");
         for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
+            log.info(entry.getKey() + ": " + entry.getValue());
         }
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("word", "count"));
+        declarer.declare(new Fields("word", "count")
+        );
     }
 }
